@@ -1,0 +1,59 @@
+name: Desplegar en GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Compilar (genera export estático en /out)
+        env:
+          NEXT_PUBLIC_MF_AGENDA_URL: https://josedavidmh.github.io/saludweb-mf-agenda/mf-agenda.umd.js
+          NEXT_PUBLIC_MF_HISTORIA_URL: https://josedavidmh.github.io/saludweb-mf-historia-clinica/mf-historia-clinica.umd.js
+          NEXT_PUBLIC_MF_ADMISIONES_URL: https://josedavidmh.github.io/saludweb-mf-admisiones/mf-admisiones.umd.js
+        run: npm run build
+
+      - name: Deshabilitar Jekyll (para que GitHub Pages sirva la carpeta _next)
+        run: touch ./out/.nojekyll
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir artefacto de Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
