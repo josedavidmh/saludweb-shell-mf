@@ -16,7 +16,7 @@ export default function DashboardPage() {
       <AppShell>
         <h1>Panel general</h1>
         <p>
-          Bienvenido(a), {sesion.usuario?.nombre}. Este panel demuestra el patrón <b>Flux</b>: cada
+          Bienvenido(a), Este panel demuestra el patrón <b>Flux</b>: cada
           módulo del menú (Agenda, Historia Clínica, Servicios CUPS, Contratación, Profesionales,
           Admisiones) tiene su propio store, pero todos comparten el mismo <code>dispatcher</code>{" "}
           central y consumen el estado global de sesión definido aquí.
@@ -25,3 +25,5 @@ export default function DashboardPage() {
     </RutaProtegida>
   );
 }
+
+//{sesion.usuario?.nombre}.
