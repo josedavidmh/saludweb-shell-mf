@@ -13,8 +13,40 @@ type EstadoSesion = {
 
 type Listener = () => void;
 
+const CLAVE_STORAGE = "saludweb:sesion";
+
+// El estado vivía únicamente en memoria: cualquier recarga completa de la
+// página (F5, o cualquier navegación que el navegador resuelva como carga
+// dura en vez de enrutamiento de Next.js) reiniciaba el módulo y con eso
+// se perdía "usuario", así que RutaProtegida mandaba de vuelta a /login
+// aunque la sesión siguiera siendo válida. Se persiste en sessionStorage
+// (se limpia solo al cerrar la pestaña) para que sobreviva a una recarga.
+function leerUsuarioPersistido(): Usuario | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const guardado = window.sessionStorage.getItem(CLAVE_STORAGE);
+    return guardado ? (JSON.parse(guardado) as Usuario) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistirUsuario(usuario: Usuario | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (usuario) {
+      window.sessionStorage.setItem(CLAVE_STORAGE, JSON.stringify(usuario));
+    } else {
+      window.sessionStorage.removeItem(CLAVE_STORAGE);
+    }
+  } catch {
+    // sessionStorage puede fallar en modo privado/incógnito; la sesión
+    // simplemente no sobrevive a un refresh en ese caso, sin romper el login.
+  }
+}
+
 class SesionStore {
-  private estado: EstadoSesion = { usuario: null, cargando: false, error: null };
+  private estado: EstadoSesion = { usuario: leerUsuarioPersistido(), cargando: false, error: null };
   private listeners: Listener[] = [];
 
   getEstado(): EstadoSesion {
@@ -40,6 +72,7 @@ class SesionStore {
         break;
       case "SESION_INICIADA":
         this.estado = { usuario: accion.payload, cargando: false, error: null };
+        persistirUsuario(accion.payload);
         this.notificar();
         break;
       case "SESION_ERROR":
@@ -48,6 +81,7 @@ class SesionStore {
         break;
       case "SESION_CERRADA":
         this.estado = { usuario: null, cargando: false, error: null };
+        persistirUsuario(null);
         this.notificar();
         break;
     }
