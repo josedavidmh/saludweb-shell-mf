@@ -3,7 +3,7 @@
 // Nombre EXACTO del repositorio de GitHub (usado como basePath en producción,
 // porque GitHub Pages de proyecto sirve el sitio en usuario.github.io/REPO/).
 // Si tu Pages es de tipo "usuario.github.io" (repo raíz), deja NOMBRE_REPO = "".
-const NOMBRE_REPO = "saludweb-prototipo-flux";
+const NOMBRE_REPO = "saludweb-shell-mf";
 
 const enProduccion = process.env.NODE_ENV === "production";
 
