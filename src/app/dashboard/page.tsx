@@ -20,6 +20,7 @@ export default function DashboardPage() {
           módulo del menú (Agenda, Historia Clínica, Servicios CUPS, Contratación, Profesionales,
           Admisiones) tiene su propio store, pero todos comparten el mismo <code>dispatcher</code>{" "}
           central y consumen el estado global de sesión definido aquí.
+          Este prototipo web aplica el concepto de microfrontends en los modulos de Agenda, Historia clínica y Admisiones.
         </p>
       </AppShell>
     </RutaProtegida>
